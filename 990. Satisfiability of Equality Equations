@@ -1,0 +1,88 @@
+You are given an array of strings equations that represent relationships between variables where each string equations[i] is of length 4 and takes one of two different forms: "xi==yi" or "xi!=yi".Here, xi and yi are lowercase letters (not necessarily different) that represent one-letter variable names.
+
+Return true if it is possible to assign integers to variable names so as to satisfy all the given equations, or false otherwise.
+
+ 
+
+Example 1:
+
+Input: equations = ["a==b","b!=a"]
+Output: false
+Explanation: If we assign say, a = 1 and b = 1, then the first equation is satisfied, but not the second.
+There is no way to assign the variables to satisfy both equations.
+Example 2:
+
+Input: equations = ["b==a","a==b"]
+Output: true
+Explanation: We could assign a = 1 and b = 1 to satisfy both equations.
+ 
+
+Constraints:
+
+1 <= equations.length <= 500
+equations[i].length == 4
+equations[i][0] is a lowercase letter.
+equations[i][1] is either '=' or '!'.
+equations[i][2] is '='.
+equations[i][3] is a lowercase letter.
+
+
+JAVA  SOLUTION::
+
+
+class Solution {
+    // parent is the root of the tree
+    int[] parent = new int[26];
+    //size is used to make the tree degree lower
+    int[] size = new int[26];
+    public boolean equationsPossible(String[] equations) {
+        // make themselves their parents
+        for(int i = 0; i < 26; i++){
+            size[i] = 1;
+            parent[i] = i;
+        }
+        // if "a == b" connet the a, b
+        for(String s: equations){
+            if(s.charAt(1) == '='){
+                int a = s.charAt(0) - 'a';
+                int b = s.charAt(3) - 'a';
+                connect(a, b);
+            }
+        }
+        //if "a != b" check whether these two has been connected
+        for(String s : equations){
+            if(s.charAt(1) == '!'){
+                int a = s.charAt(0) - 'a';
+                int b = s.charAt(3) - 'a';
+                if(checkConnection(a, b)) return false;
+            }
+        }
+        return true;
+    }
+    public void connect(int a, int b){
+        int roota = findRoot(a);
+        int rootb = findRoot(b);
+        if(roota == rootb) return;
+        if(size[roota] >= size[rootb]){
+            parent[rootb] = roota;
+            size[roota] += size[rootb];
+        }else{
+            parent[roota] = rootb;
+            size[rootb] += size[roota];
+        }
+    }
+    public int findRoot(int a){
+        while(parent[a] != a){
+            parent[a] = parent[parent[a]];
+            a = parent[a];
+        }
+        return a;
+    }
+    public boolean checkConnection(int a, int b){
+        int roota = findRoot(a);
+        int rootb = findRoot(b);
+        if(roota == rootb) return true;
+        return false;
+    }
+
+}
